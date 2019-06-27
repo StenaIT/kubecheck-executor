@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+main() {
+  read -r -d '' MS_TEAMS_WEBHOOK_BODY_TEMPLATE <<EOM
+{
+  "@type": "MessageCard",
+  "@context": "http://schema.org/extensions",
+  "themeColor": "ffafcc",
+  "summary": "{{ .Name }} - {{ .Check }} : {{ .Status }}",
+  "sections": [
+    {
+      "activityTitle": "{{ .Name }} - {{ .Check }} : {{ .Status }}",
+      "activitySubtitle": "",
+      "facts": [
+        {
+          "name": "Check",
+          "value": "{{ .Check }}"
+        },
+        {
+          "name": "Description",
+          "value": "{{ .Description }}"
+        },
+        {
+          "name": "Status",
+          "value": "{{ .Status }}"
+        },
+        {
+          "name": "Reason",
+          "value": "{{ .Reason }}"
+        },
+        {
+          "name": "Input",
+          "value": "{{ .Input }}"
+        },
+        {
+          "name": "Output",
+          "value": "{{ .Output }}"
+        },
+        {
+          "name": "Timestamp",
+          "value": "{{ .Timestamp }}"
+        }
+      ],
+      "markdown": true
+    }
+  ]
+}
+EOM
+
+  export KUBECHECK_URL="${KUBECHECK_URL:-http://localhost:8113/checks/}"
+
+  # MS Teams Webhook example
+  # export FAILED_WEBHOOK_URL='https://outlook.office.com/webhook/.......'
+  # export FAILED_WEBHOOK_BODY_TEMPLATE="${MS_TEAMS_WEBHOOK_BODY_TEMPLATE:?}"
+
+  # Healthchecks IO example
+  # export EXIT_WEBHOOK_URL='https://hc-ping.com/.......'
+
+  go build -o kubecheck-executor && kubecheck-executor
+}
+
+main "$@"
